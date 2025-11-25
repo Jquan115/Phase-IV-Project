@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ER Hospital Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav {
+            background: #333;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .nav button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .nav button:hover {
+            background: #45a049;
+        }
+        .section {
+            display: none;
+            background: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .section.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 300px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button.action {
+            background: #008CBA;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button.action:hover {
+            background: #007399;
+        }
+        button.cancel {
+            background: #f44336;
+        }
+        button.cancel:hover {
+            background: #da190b;
+        }
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>ER Hospital Management System</h1>
+    
+    <div class="nav">
+        <button onclick="showSection('addPatient')">Add Patient</button>
+        <button onclick="showSection('recordSymptom')">Record Symptom</button>
+        <button onclick="showSection('bookAppointment')">Book Appointment</button>
+        <button onclick="showSection('placeOrder')">Place Order</button>
+        <button onclick="showSection('addStaff')">Add Staff</button>
+        <button onclick="showSection('addFunds')">Add Funds</button>
+        <button onclick="showSection('assignNurse')">Assign Nurse</button>
+        <button onclick="showSection('assignRoom')">Assign Room</button>
+        <button onclick="showSection('assignDoctor')">Assign Doctor</button>
+        <button onclick="showSection('manageDept')">Manage Dept</button>
+        <button onclick="showSection('releaseRoom')">Release Room</button>
+        <button onclick="showSection('removePatient')">Remove Patient</button>
+        <button onclick="showSection('removeStaff')">Remove Staff</button>
+        <button onclick="showSection('completeAppt')">Complete Appt</button>
+        <button onclick="showSection('completeOrders')">Complete Orders</button>
+        <button onclick="showSection('views')">Views</button>
+    </div>
+
+    <div id="addPatient" class="section">
+        <h2>Add Patient</h2>
+        <div class="form-group">
+            <label>SSN:</label>
+            <input type="text" id="addPatient_ssn">
+        </div>
+        <div class="form-group">
+            <label>First Name:</label>
+            <input type="text" id="addPatient_firstName">
+        </div>
+        <div class="form-group">
+            <label>Last Name:</label>
+            <input type="text" id="addPatient_lastName">
+        </div>
+        <div class="form-group">
+            <label>Birthdate:</label>
+            <input type="date" id="addPatient_birthdate">
+        </div>
+        <div class="form-group">
+            <label>Address:</label>
+            <input type="text" id="addPatient_address">
+        </div>
+        <div class="form-group">
+            <label>Funds:</label>
+            <input type="number" id="addPatient_funds">
+        </div>
+        <div class="form-group">
+            <label>Contact:</label>
+            <input type="text" id="addPatient_contact">
+        </div>
+        <button class="action" onclick="submitAddPatient()">Add</button>
+        <button class="action cancel" onclick="clearForm('addPatient')">Cancel</button>
+        <div id="addPatient_message"></div>
+    </div>
+
+    <div id="recordSymptom" class="section">
+        <h2>Record Symptom</h2>
+        <div class="form-group">
+            <label>Patient ID:</label>
+            <select id="recordSymptom_patientId"></select>
+        </div>
+        <div class="form-group">
+            <label>Num Days:</label>
+            <input type="number" id="recordSymptom_numDays">
+        </div>
+        <div class="form-group">
+            <label>Appt Date:</label>
+            <input type="date" id="recordSymptom_apptDate">
+        </div>
+        <div class="form-group">
+            <label>Appt Time:</label>
+            <input type="time" id="recordSymptom_apptTime">
+        </div>
+        <div class="form-group">
+            <label>Symptom Type:</label>
+            <input type="text" id="recordSymptom_symptomType">
+        </div>
+        <button class="action" onclick="submitRecordSymptom()">Record</button>
+        <button class="action cancel" onclick="clearForm('recordSymptom')">Cancel</button>
+        <div id="recordSymptom_message"></div>
+    </div>
+
+    <div id="bookAppointment" class="section">
+        <h2>Book Appointment</h2>
+        <div class="form-group">
+            <label>Patient ID:</label>
+            <select id="bookAppointment_patientId"></select>
+        </div>
+        <div class="form-group">
+            <label>Appt Date:</label>
+            <input type="date" id="bookAppointment_apptDate">
+        </div>
+        <div class="form-group">
+            <label>Appt Time:</label>
+            <input type="time" id="bookAppointment_apptTime">
+        </div>
+        <div class="form-group">
+            <label>Appt Cost:</label>
+            <input type="number" id="bookAppointment_apptCost">
+        </div>
+        <button class="action" onclick="submitBookAppointment()">Book</button>
+        <button class="action cancel" onclick="clearForm('bookAppointment')">Cancel</button>
+        <div id="bookAppointment_message"></div>
+    </div>
+
+    <div id="placeOrder" class="section">
+        <h2>Place Order</h2>
+        <div class="form-group">
+            <label>Order Number:</label>
+            <input type="number" id="placeOrder_orderNumber">
+        </div>
+        <div class="form-group">
+            <label>Priority:</label>
+            <input type="number" id="placeOrder_priority">
+        </div>
+        <div class="form-group">
+            <label>Patient ID:</label>
+            <select id="placeOrder_patientId"></select>
+        </div>
+        <div class="form-group">
+            <label>Doctor ID:</label>
+            <select id="placeOrder_doctorId"></select>
+        </div>
+        <div class="form-group">
+            <label>Cost:</label>
+            <input type="number" id="placeOrder_cost">
+        </div>
+        <div class="form-group">
+            <label>Lab Type:</label>
+            <input type="text" id="placeOrder_labType">
+        </div>
+        <div class="form-group">
+            <label>Drug:</label>
+            <input type="text" id="placeOrder_drug">
+        </div>
+        <div class="form-group">
+            <label>Dosage:</label>
+            <input type="number" id="placeOrder_dosage">
+        </div>
+        <button class="action" onclick="submitPlaceOrder()">Place</button>
+        <button class="action cancel" onclick="clearForm('placeOrder')">Cancel</button>
+        <div id="placeOrder_message"></div>
+    </div>
+
+    <div id="addStaff" class="section">
+        <h2>Add Staff to Department</h2>
+        <div class="form-group">
+            <label>Dept ID:</label>
+            <select id="addStaff_deptId"></select>
+        </div>
+        <div class="form-group">
+            <label>SSN:</label>
+            <input type="text" id="addStaff_ssn">
+        </div>
+        <div class="form-group">
+            <label>First Name:</label>
+            <input type="text" id="addStaff_firstName">
+        </div>
+        <div class="form-group">
+            <label>Last Name:</label>
+            <input type="text" id="addStaff_lastName">
+        </div>
+        <div class="form-group">
+            <label>Birthdate:</label>
+            <input type="date" id="addStaff_birthdate">
+        </div>
+        <div class="form-group">
+            <label>Start Date:</label>
+            <input type="date" id="addStaff_startDate">
+        </div>
+        <div class="form-group">
+            <label>Address:</label>
+            <input type="text" id="addStaff_address">
+        </div>
+        <div class="form-group">
+            <label>Staff ID:</label>
+            <input type="number" id="addStaff_staffId">
+        </div>
+        <div class="form-group">
+            <label>Salary:</label>
+            <input type="number" id="addStaff_salary">
+        </div>
+        <button class="action" onclick="submitAddStaff()">Add</button>
+        <button class="action cancel" onclick="clearForm('addStaff')">Cancel</button>
+        <div id="addStaff_message"></div>
+    </div>
+
+    <div id="addFunds" class="section">
+        <h2>Add Funds</h2>
+        <div class="form-group">
+            <label>SSN:</label>
+            <select id="addFunds_ssn"></select>
+        </div>
+        <div class="form-group">
+            <label>Funds:</label>
+            <input type="number" id="addFunds_funds">
+        </div>
+        <button class="action" onclick="submitAddFunds()">Add</button>
+        <button class="action cancel" onclick="clearForm('addFunds')">Cancel</button>
+        <div id="addFunds_message"></div>
+    </div>
+
+    <div id="assignNurse" class="section">
+        <h2>Assign Nurse to Room</h2>
+        <div class="form-group">
+            <label>Nurse ID:</label>
+            <select id="assignNurse_nurseId"></select>
+        </div>
+        <div class="form-group">
+            <label>Room Number:</label>
+            <select id="assignNurse_roomNumber"></select>
+        </div>
+        <button class="action" onclick="submitAssignNurse()">Assign</button>
+        <button class="action cancel" onclick="clearForm('assignNurse')">Cancel</button>
+        <div id="assignNurse_message"></div>
+    </div>
+
+    <div id="assignRoom" class="section">
+        <h2>Assign Room to Patient</h2>
+        <div class="form-group">
+            <label>SSN:</label>
+            <select id="assignRoom_ssn"></select>
+        </div>
+        <div class="form-group">
+            <label>Room Number:</label>
+            <select id="assignRoom_roomNumber"></select>
+        </div>
+        <div class="form-group">
+            <label>Room Type:</label>
+            <input type="text" id="assignRoom_roomType">
+        </div>
+        <button class="action" onclick="submitAssignRoom()">Assign</button>
+        <button class="action cancel" onclick="clearForm('assignRoom')">Cancel</button>
+        <div id="assignRoom_message"></div>
+    </div>
+
+    <div id="assignDoctor" class="section">
+        <h2>Assign Doctor to Appointment</h2>
+        <div class="form-group">
+            <label>Patient ID:</label>
+            <select id="assignDoctor_patientId"></select>
+        </div>
+        <div class="form-group">
+            <label>Appt Date:</label>
+            <input type="date" id="assignDoctor_apptDate">
+        </div>
+        <div class="form-group">
+            <label>Appt Time:</label>
+            <input type="time" id="assignDoctor_apptTime">
+        </div>
+        <div class="form-group">
+            <label>Doctor ID:</label>
+            <select id="assignDoctor_doctorId"></select>
+        </div>
+        <button class="action" onclick="submitAssignDoctor()">Assign</button>
+        <button class="action cancel" onclick="clearForm('assignDoctor')">Cancel</button>
+        <div id="assignDoctor_message"></div>
+    </div>
+
+    <div id="manageDept" class="section">
+        <h2>Manage Department</h2>
+        <div class="form-group">
+            <label>SSN:</label>
+            <input type="text" id="manageDept_ssn">
+        </div>
+        <div class="form-group">
+            <label>Dept ID:</label>
+            <select id="manageDept_deptId"></select>
+        </div>
+        <button class="action" onclick="submitManageDept()">Manage</button>
+        <button class="action cancel" onclick="clearForm('manageDept')">Cancel</button>
+        <div id="manageDept_message"></div>
+    </div>
+
+    <div id="releaseRoom" class="section">
+        <h2>Release Room</h2>
+        <div class="form-group">
+            <label>Room Number:</label>
+            <select id="releaseRoom_roomNumber"></select>
+        </div>
+        <button class="action" onclick="submitReleaseRoom()">Release</button>
+        <button class="action cancel" onclick="clearForm('releaseRoom')">Cancel</button>
+        <div id="releaseRoom_message"></div>
+    </div>
+
+    <div id="removePatient" class="section">
+        <h2>Remove Patient</h2>
+        <div class="form-group">
+            <label>SSN:</label>
+            <select id="removePatient_ssn"></select>
+        </div>
+        <button class="action" onclick="submitRemovePatient()">Remove</button>
+        <button class="action cancel" onclick="clearForm('removePatient')">Cancel</button>
+        <div id="removePatient_message"></div>
+    </div>
+
+    <div id="removeStaff" class="section">
+        <h2>Remove Staff from Department</h2>
+        <div class="form-group">
+            <label>SSN:</label>
+            <input type="text" id="removeStaff_ssn">
+        </div>
+        <div class="form-group">
+            <label>Dept ID:</label>
+            <select id="removeStaff_deptId"></select>
+        </div>
+        <button class="action" onclick="submitRemoveStaff()">Remove</button>
+        <button class="action cancel" onclick="clearForm('removeStaff')">Cancel</button>
+        <div id="removeStaff_message"></div>
+    </div>
+
+    <div id="completeAppt" class="section">
+        <h2>Complete Appointment</h2>
+        <div class="form-group">
+            <label>Patient ID:</label>
+            <select id="completeAppt_patientId"></select>
+        </div>
+        <div class="form-group">
+            <label>Appt Date:</label>
+            <input type="date" id="completeAppt_apptDate">
+        </div>
+        <div class="form-group">
+            <label>Appt Time:</label>
+            <input type="time" id="completeAppt_apptTime">
+        </div>
+        <button class="action" onclick="submitCompleteAppt()">Complete</button>
+        <button class="action cancel" onclick="clearForm('completeAppt')">Cancel</button>
+        <div id="completeAppt_message"></div>
+    </div>
+
+    <div id="completeOrders" class="section">
+        <h2>Complete Orders</h2>
+        <div class="form-group">
+            <label>Num Orders:</label>
+            <input type="number" id="completeOrders_numOrders">
+        </div>
+        <button class="action" onclick="submitCompleteOrders()">Complete</button>
+        <button class="action cancel" onclick="clearForm('completeOrders')">Cancel</button>
+        <div id="completeOrders_message"></div>
+    </div>
+
+    <div id="views" class="section">
+        <h2>Views</h2>
+        <button class="action" onclick="loadView('room_wise_view')">Room Wise View</button>
+        <button class="action" onclick="loadView('symptoms_overview_view')">Symptoms Overview</button>
+        <button class="action" onclick="loadView('medical_staff_view')">Medical Staff View</button>
+        <button class="action" onclick="loadView('department_view')">Department View</button>
+        <button class="action" onclick="loadView('outstanding_charges_view')">Outstanding Charges</button>
+        <div id="views_data"></div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            if (sectionId !== 'addPatient') {
+                loadDropdowns(sectionId);
+            }
+        }
+
+        function loadDropdowns(section) {
+            if (section.includes('Patient') || section.includes('Appt') || section.includes('Symptom')) {
+                fetch('/get_patients')
+                    .then(r => r.json())
+                    .then(data => {
+                        const selects = document.querySelectorAll(`#${section} select`);
+                        selects.forEach(select => {
+                            if (select.id.includes('patientId') || select.id.includes('ssn')) {
+                                select.innerHTML = data.map(p => 
+                                    `<option value="${p.ssn}">${p.firstName} ${p.lastName} (${p.ssn})</option>`
+                                ).join('');
+                            }
+                        });
+                    });
+            }
+            if (section.includes('Doctor') || section === 'placeOrder') {
+                fetch('/get_doctors')
+                    .then(r => r.json())
+                    .then(data => {
+                        const select = document.querySelector(`#${section}_doctorId`);
+                        if (select) {
+                            select.innerHTML = data.map(d => 
+                                `<option value="${d.ssn}">${d.firstName} ${d.lastName} (${d.ssn})</option>`
+                            ).join('');
+                        }
+                    });
+            }
+            if (section.includes('Nurse')) {
+                fetch('/get_nurses')
+                    .then(r => r.json())
+                    .then(data => {
+                        const select = document.querySelector(`#${section}_nurseId`);
+                        if (select) {
+                            select.innerHTML = data.map(n => 
+                                `<option value="${n.ssn}">${n.firstName} ${n.lastName} (${n.ssn})</option>`
+                            ).join('');
+                        }
+                    });
+            }
+            if (section.includes('Dept') || section === 'addStaff' || section === 'removeStaff') {
+                fetch('/get_departments')
+                    .then(r => r.json())
+                    .then(data => {
+                        const select = document.querySelector(`#${section}_deptId`);
+                        if (select) {
+                            select.innerHTML = data.map(d => 
+                                `<option value="${d.deptId}">${d.longName} (${d.deptId})</option>`
+                            ).join('');
+                        }
+                    });
+            }
+            if (section.includes('Room')) {
+                fetch('/get_rooms')
+                    .then(r => r.json())
+                    .then(data => {
+                        const select = document.querySelector(`#${section}_roomNumber`);
+                        if (select) {
+                            select.innerHTML = data.map(r => 
+                                `<option value="${r.roomNumber}">${r.roomNumber} (${r.roomType})</option>`
+                            ).join('');
+                        }
+                    });
+            }
+        }
+
+        function clearForm(section) {
+            document.querySelectorAll(`#${section} input`).forEach(input => {
+                input.value = '';
+            });
+            document.querySelector(`#${section}_message`).innerHTML = '';
+        }
+
+        function showMessage(section, message, isSuccess) {
+            const msgDiv = document.querySelector(`#${section}_message`);
+            msgDiv.innerHTML = `<div class="message ${isSuccess ? 'success' : 'error'}">${message}</div>`;
+        }
+
+        function submitAddPatient() {
+            const data = {
+                ssn: document.getElementById('addPatient_ssn').value,
+                firstName: document.getElementById('addPatient_firstName').value,
+                lastName: document.getElementById('addPatient_lastName').value,
+                birthdate: document.getElementById('addPatient_birthdate').value,
+                address: document.getElementById('addPatient_address').value,
+                funds: parseInt(document.getElementById('addPatient_funds').value),
+                contact: document.getElementById('addPatient_contact').value
+            };
+            fetch('/add_patient', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('addPatient', result.success ? 'Patient added successfully' : result.error, result.success);
+            });
+        }
+
+        function submitRecordSymptom() {
+            const data = {
+                patientId: document.getElementById('recordSymptom_patientId').value,
+                numDays: parseInt(document.getElementById('recordSymptom_numDays').value),
+                apptDate: document.getElementById('recordSymptom_apptDate').value,
+                apptTime: document.getElementById('recordSymptom_apptTime').value,
+                symptomType: document.getElementById('recordSymptom_symptomType').value
+            };
+            fetch('/record_symptom', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('recordSymptom', result.success ? 'Symptom recorded successfully' : result.error, result.success);
+            });
+        }
+
+        function submitBookAppointment() {
+            const data = {
+                patientId: document.getElementById('bookAppointment_patientId').value,
+                apptDate: document.getElementById('bookAppointment_apptDate').value,
+                apptTime: document.getElementById('bookAppointment_apptTime').value,
+                apptCost: parseInt(document.getElementById('bookAppointment_apptCost').value)
+            };
+            fetch('/book_appointment', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('bookAppointment', result.success ? 'Appointment booked successfully' : result.error, result.success);
+            });
+        }
+
+        function submitPlaceOrder() {
+            const labType = document.getElementById('placeOrder_labType').value;
+            const drug = document.getElementById('placeOrder_drug').value;
+            const data = {
+                orderNumber: parseInt(document.getElementById('placeOrder_orderNumber').value),
+                priority: parseInt(document.getElementById('placeOrder_priority').value),
+                patientId: document.getElementById('placeOrder_patientId').value,
+                doctorId: document.getElementById('placeOrder_doctorId').value,
+                cost: parseInt(document.getElementById('placeOrder_cost').value),
+                labType: labType || null,
+                drug: drug || null,
+                dosage: drug ? parseInt(document.getElementById('placeOrder_dosage').value) : null
+            };
+            fetch('/place_order', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('placeOrder', result.success ? 'Order placed successfully' : result.error, result.success);
+            });
+        }
+
+        function submitAddStaff() {
+            const data = {
+                deptId: parseInt(document.getElementById('addStaff_deptId').value),
+                ssn: document.getElementById('addStaff_ssn').value,
+                firstName: document.getElementById('addStaff_firstName').value,
+                lastName: document.getElementById('addStaff_lastName').value,
+                birthdate: document.getElementById('addStaff_birthdate').value,
+                startDate: document.getElementById('addStaff_startDate').value,
+                address: document.getElementById('addStaff_address').value,
+                staffId: parseInt(document.getElementById('addStaff_staffId').value),
+                salary: parseInt(document.getElementById('addStaff_salary').value)
+            };
+            fetch('/add_staff_to_dept', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('addStaff', result.success ? 'Staff added successfully' : result.error, result.success);
+            });
+        }
+
+        function submitAddFunds() {
+            const data = {
+                ssn: document.getElementById('addFunds_ssn').value,
+                funds: parseInt(document.getElementById('addFunds_funds').value)
+            };
+            fetch('/add_funds', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('addFunds', result.success ? 'Funds added successfully' : result.error, result.success);
+            });
+        }
+
+        function submitAssignNurse() {
+            const data = {
+                nurseId: document.getElementById('assignNurse_nurseId').value,
+                roomNumber: parseInt(document.getElementById('assignNurse_roomNumber').value)
+            };
+            fetch('/assign_nurse_to_room', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('assignNurse', result.success ? 'Nurse assigned successfully' : result.error, result.success);
+            });
+        }
+
+        function submitAssignRoom() {
+            const data = {
+                ssn: document.getElementById('assignRoom_ssn').value,
+                roomNumber: parseInt(document.getElementById('assignRoom_roomNumber').value),
+                roomType: document.getElementById('assignRoom_roomType').value
+            };
+            fetch('/assign_room_to_patient', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('assignRoom', result.success ? 'Room assigned successfully' : result.error, result.success);
+            });
+        }
+
+        function submitAssignDoctor() {
+            const data = {
+                patientId: document.getElementById('assignDoctor_patientId').value,
+                apptDate: document.getElementById('assignDoctor_apptDate').value,
+                apptTime: document.getElementById('assignDoctor_apptTime').value,
+                doctorId: document.getElementById('assignDoctor_doctorId').value
+            };
+            fetch('/assign_doctor_to_appointment', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('assignDoctor', result.success ? 'Doctor assigned successfully' : result.error, result.success);
+            });
+        }
+
+        function submitManageDept() {
+            const data = {
+                ssn: document.getElementById('manageDept_ssn').value,
+                deptId: parseInt(document.getElementById('manageDept_deptId').value)
+            };
+            fetch('/manage_department', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('manageDept', result.success ? 'Department managed successfully' : result.error, result.success);
+            });
+        }
+
+        function submitReleaseRoom() {
+            const data = {
+                roomNumber: parseInt(document.getElementById('releaseRoom_roomNumber').value)
+            };
+            fetch('/release_room', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('releaseRoom', result.success ? 'Room released successfully' : result.error, result.success);
+            });
+        }
+
+        function submitRemovePatient() {
+            const data = {
+                ssn: document.getElementById('removePatient_ssn').value
+            };
+            fetch('/remove_patient', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('removePatient', result.success ? 'Patient removed successfully' : result.error, result.success);
+            });
+        }
+
+        function submitRemoveStaff() {
+            const data = {
+                ssn: document.getElementById('removeStaff_ssn').value,
+                deptId: parseInt(document.getElementById('removeStaff_deptId').value)
+            };
+            fetch('/remove_staff_from_dept', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('removeStaff', result.success ? 'Staff removed successfully' : result.error, result.success);
+            });
+        }
+
+        function submitCompleteAppt() {
+            const data = {
+                patientId: document.getElementById('completeAppt_patientId').value,
+                apptDate: document.getElementById('completeAppt_apptDate').value,
+                apptTime: document.getElementById('completeAppt_apptTime').value
+            };
+            fetch('/complete_appointment', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('completeAppt', result.success ? 'Appointment completed successfully' : result.error, result.success);
+            });
+        }
+
+        function submitCompleteOrders() {
+            const data = {
+                numOrders: parseInt(document.getElementById('completeOrders_numOrders').value)
+            };
+            fetch('/complete_orders', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(result => {
+                showMessage('completeOrders', result.success ? 'Orders completed successfully' : result.error, result.success);
+            });
+        }
+
+        function loadView(viewName) {
+            fetch(`/view/${viewName}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        document.getElementById('views_data').innerHTML = '<p>No data found</p>';
+                        return;
+                    }
+                    const keys = Object.keys(data[0]);
+                    let html = '<table><thead><tr>';
+                    keys.forEach(key => {
+                        html += `<th>${key}</th>`;
+                    });
+                    html += '</tr></thead><tbody>';
+                    data.forEach(row => {
+                        html += '<tr>';
+                        keys.forEach(key => {
+                            html += `<td>${row[key] !== null ? row[key] : 'NULL'}</td>`;
+                        });
+                        html += '</tr>';
+                    });
+                    html += '</tbody></table>';
+                    document.getElementById('views_data').innerHTML = html;
+                });
+        }
+
+        showSection('addPatient');
+    </script>
+</body>
+</html>

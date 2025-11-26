@@ -8,8 +8,8 @@ def get_db():
     return mysql.connector.connect(
         host='127.0.0.1',
         port=3306,
-        user='root',
-        password='',
+        user='er_app_user', # testing shared user
+        password='phase4', # testing shared password
         database='er_hospital_management'
     )
 

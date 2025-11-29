@@ -8,8 +8,8 @@ def get_db():
     return mysql.connector.connect(
         host='127.0.0.1',
         port=3306,
-        user='root',
-        password='',
+        user='er_app_user', # testing shared user
+        password='phase4', # testing shared password
         database='er_hospital_management'
     )
 
@@ -258,7 +258,29 @@ def get_view(view_name):
         results = cursor.fetchall()
         cursor.close()
         conn.close()
-        return jsonify(results)
+        
+        # Convert non-serializable types to strings
+        import json
+        from datetime import timedelta, date, datetime
+        
+        def convert_to_serializable(obj):
+            if isinstance(obj, timedelta):
+                return str(obj)
+            elif isinstance(obj, (date, datetime)):
+                return obj.isoformat()
+            elif isinstance(obj, bytes):
+                return obj.decode('utf-8')
+            return obj
+        
+        # Process each row
+        serializable_results = []
+        for row in results:
+            serializable_row = {}
+            for key, value in row.items():
+                serializable_row[key] = convert_to_serializable(value)
+            serializable_results.append(serializable_row)
+        
+        return jsonify(serializable_results)
     except Exception as e:
         return jsonify({'error': str(e)})
 

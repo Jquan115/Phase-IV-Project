@@ -462,20 +462,27 @@
         }
 
         function loadDropdowns(section) {
-            if (section.includes('Patient') || section.includes('Appt') || section.includes('Symptom')) {
+            if (
+                section.includes('Patient') ||
+                section.includes('Appt') ||
+                section.includes('Symptom') ||
+                section.includes('Appointment')
+            ) {
                 fetch('/get_patients')
                     .then(r => r.json())
                     .then(data => {
                         const selects = document.querySelectorAll(`#${section} select`);
                         selects.forEach(select => {
                             if (select.id.includes('patientId') || select.id.includes('ssn')) {
-                                select.innerHTML = data.map(p => 
+                                const html = data.map(p => 
                                     `<option value="${p.ssn}">${p.firstName} ${p.lastName} (${p.ssn})</option>`
                                 ).join('');
+                                select.innerHTML = html;
                             }
                         });
                     });
             }
+
             if (section.includes('Doctor') || section === 'placeOrder') {
                 fetch('/get_doctors')
                     .then(r => r.json())
@@ -488,6 +495,7 @@
                         }
                     });
             }
+
             if (section.includes('Nurse')) {
                 fetch('/get_nurses')
                     .then(r => r.json())
@@ -500,6 +508,7 @@
                         }
                     });
             }
+
             if (section.includes('Dept') || section === 'addStaff' || section === 'removeStaff') {
                 fetch('/get_departments')
                     .then(r => r.json())
@@ -512,6 +521,7 @@
                         }
                     });
             }
+
             if (section.includes('Room')) {
                 fetch('/get_rooms')
                     .then(r => r.json())
@@ -778,7 +788,19 @@
             fetch(`/view/${viewName}`)
                 .then(r => r.json())
                 .then(data => {
-                    if (data.length === 0) {
+                    // Check if there's an error
+                    if (data.error) {
+                        document.getElementById('views_data').innerHTML = 
+                            `<div class="message error">Error: ${data.error}</div>`;
+                        return;
+                    }
+                    // Check if data is an array and has items
+                    if (!Array.isArray(data) || data.length === 0) {
+                        document.getElementById('views_data').innerHTML = '<p>No data found</p>';
+                        return;
+                    }
+                    // Check if first item exists
+                    if (!data[0]) {
                         document.getElementById('views_data').innerHTML = '<p>No data found</p>';
                         return;
                     }
@@ -797,6 +819,10 @@
                     });
                     html += '</tbody></table>';
                     document.getElementById('views_data').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('views_data').innerHTML = 
+                        `<div class="message error">Error loading view: ${error}</div>`;
                 });
         }
 

@@ -8,8 +8,8 @@ def get_db():
     return mysql.connector.connect(
         host='127.0.0.1',
         port=3306,
-        user='er_app_user', # testing shared user
-        password='phase4', # testing shared password
+        user='root',
+        password='',
         database='er_hospital_management'
     )
 
@@ -107,9 +107,12 @@ def add_staff_to_dept():
 def add_funds():
     data = request.json
     try:
+        funds = int(data['funds'])
+        if funds < 0:
+            return jsonify({'success': False, 'error': 'Funds cannot be negative'})
         conn = get_db()
         cursor = conn.cursor()
-        cursor.callproc('add_funds', [data['ssn'], data['funds']])
+        cursor.callproc('add_funds', [data['ssn'], funds])
         conn.commit()
         cursor.close()
         conn.close()
@@ -259,8 +262,6 @@ def get_view(view_name):
         cursor.close()
         conn.close()
         
-        # Convert non-serializable types to strings
-        import json
         from datetime import timedelta, date, datetime
         
         def convert_to_serializable(obj):
@@ -272,7 +273,6 @@ def get_view(view_name):
                 return obj.decode('utf-8')
             return obj
         
-        # Process each row
         serializable_results = []
         for row in results:
             serializable_row = {}
@@ -342,6 +342,19 @@ def get_rooms():
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
         cursor.execute('SELECT roomNumber, roomType FROM room')
+        results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/get_staff')
+def get_staff():
+    try:
+        conn = get_db()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute('SELECT ssn, firstName, lastName FROM staff JOIN person USING(ssn)')
         results = cursor.fetchall()
         cursor.close()
         conn.close()

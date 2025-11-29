@@ -523,8 +523,21 @@
                         const select = document.querySelector(`#${section}_roomNumber`);
                         if (select) {
                             select.innerHTML = data.map(r => 
-                                `<option value="${r.roomNumber}">${r.roomNumber} (${r.roomType})</option>`
+                                `<option value="${r.roomNumber}" data-type="${r.roomType}">${r.roomNumber} (${r.roomType})</option>`
                             ).join('');
+                            
+                            if (section === 'assignRoom') {
+                                select.onchange = function() {
+                                    const selectedOption = this.options[this.selectedIndex];
+                                    const roomType = selectedOption.getAttribute('data-type');
+                                    document.getElementById('assignRoom_roomType').value = roomType;
+                                };
+                                if (select.options.length > 0) {
+                                    const firstOption = select.options[0];
+                                    const roomType = firstOption.getAttribute('data-type');
+                                    document.getElementById('assignRoom_roomType').value = roomType;
+                                }
+                            }
                         }
                     });
             }

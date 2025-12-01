@@ -9,8 +9,8 @@ def get_db():
     return mysql.connector.connect(
         host='127.0.0.1',
         port=3306,
-        user='root', # testing shared user
-        password='ElectricitySLB15#', # testing shared password
+        user='root',
+        password='',
         database='er_hospital_management'
     )
 
@@ -108,9 +108,12 @@ def add_staff_to_dept():
 def add_funds():
     data = request.json
     try:
+        funds = int(data['funds'])
+        if funds < 0:
+            return jsonify({'success': False, 'error': 'Funds cannot be negative'})
         conn = get_db()
         cursor = conn.cursor()
-        cursor.callproc('add_funds', [data['ssn'], data['funds']])
+        cursor.callproc('add_funds', [data['ssn'], funds])
         conn.commit()
         cursor.close()
         conn.close()
@@ -339,6 +342,19 @@ def get_rooms():
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
         cursor.execute('select roomNumber, roomType from room')
+        results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/get_staff')
+def get_staff():
+    try:
+        conn = get_db()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute('SELECT ssn, firstName, lastName FROM staff JOIN person USING(ssn)')
         results = cursor.fetchall()
         cursor.close()
         conn.close()

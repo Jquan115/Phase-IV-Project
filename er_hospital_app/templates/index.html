@@ -296,7 +296,7 @@
         </div>
         <div class="form-group">
             <label>Funds:</label>
-            <input type="number" id="addFunds_funds">
+            <input type="number" id="addFunds_funds" min="0">
         </div>
         <button class="action" onclick="submitAddFunds()">Add</button>
         <button class="action cancel" onclick="clearForm('addFunds')">Cancel</button>
@@ -364,7 +364,7 @@
         <h2>Manage Department</h2>
         <div class="form-group">
             <label>SSN:</label>
-            <input type="text" id="manageDept_ssn">
+            <select id="manageDept_ssn"></select>
         </div>
         <div class="form-group">
             <label>Dept ID:</label>
@@ -401,7 +401,7 @@
         <h2>Remove Staff from Department</h2>
         <div class="form-group">
             <label>SSN:</label>
-            <input type="text" id="removeStaff_ssn">
+            <select id="removeStaff_ssn"></select>
         </div>
         <div class="form-group">
             <label>Dept ID:</label>
@@ -456,34 +456,28 @@
         function showSection(sectionId) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
-            if (sectionId !== 'addPatient') {
-                loadDropdowns(sectionId);
-            }
+            loadDropdowns(sectionId);
         }
 
         function loadDropdowns(section) {
-            if (
-                section.includes('Patient') ||
-                section.includes('Appt') ||
-                section.includes('Symptom') ||
-                section.includes('Appointment')
-            ) {
+            if (section === 'placeOrder' || section === 'recordSymptom' || section === 'bookAppointment' || 
+                section === 'assignDoctor' || section === 'completeAppt' || section === 'assignRoom' || 
+                section === 'addFunds' || section === 'removePatient') {
                 fetch('/get_patients')
                     .then(r => r.json())
                     .then(data => {
                         const selects = document.querySelectorAll(`#${section} select`);
                         selects.forEach(select => {
                             if (select.id.includes('patientId') || select.id.includes('ssn')) {
-                                const html = data.map(p => 
+                                select.innerHTML = data.map(p => 
                                     `<option value="${p.ssn}">${p.firstName} ${p.lastName} (${p.ssn})</option>`
                                 ).join('');
-                                select.innerHTML = html;
                             }
                         });
                     });
             }
 
-            if (section.includes('Doctor') || section === 'placeOrder') {
+            if (section === 'placeOrder' || section === 'assignDoctor') {
                 fetch('/get_doctors')
                     .then(r => r.json())
                     .then(data => {
@@ -496,7 +490,7 @@
                     });
             }
 
-            if (section.includes('Nurse')) {
+            if (section === 'assignNurse') {
                 fetch('/get_nurses')
                     .then(r => r.json())
                     .then(data => {
@@ -509,7 +503,7 @@
                     });
             }
 
-            if (section.includes('Dept') || section === 'addStaff' || section === 'removeStaff') {
+            if (section === 'addStaff' || section === 'manageDept' || section === 'removeStaff') {
                 fetch('/get_departments')
                     .then(r => r.json())
                     .then(data => {
@@ -522,14 +516,40 @@
                     });
             }
 
-            if (section.includes('Room')) {
+            if (section === 'assignNurse' || section === 'assignRoom' || section === 'releaseRoom') {
                 fetch('/get_rooms')
                     .then(r => r.json())
                     .then(data => {
                         const select = document.querySelector(`#${section}_roomNumber`);
                         if (select) {
                             select.innerHTML = data.map(r => 
-                                `<option value="${r.roomNumber}">${r.roomNumber} (${r.roomType})</option>`
+                                `<option value="${r.roomNumber}" data-type="${r.roomType}">${r.roomNumber} (${r.roomType})</option>`
+                            ).join('');
+                            
+                            if (section === 'assignRoom') {
+                                select.onchange = function() {
+                                    const selectedOption = this.options[this.selectedIndex];
+                                    const roomType = selectedOption.getAttribute('data-type');
+                                    document.getElementById('assignRoom_roomType').value = roomType;
+                                };
+                                if (select.options.length > 0) {
+                                    const firstOption = select.options[0];
+                                    const roomType = firstOption.getAttribute('data-type');
+                                    document.getElementById('assignRoom_roomType').value = roomType;
+                                }
+                            }
+                        }
+                    });
+            }
+
+            if (section === 'manageDept' || section === 'removeStaff') {
+                fetch('/get_staff')
+                    .then(r => r.json())
+                    .then(data => {
+                        const select = document.querySelector(`#${section}_ssn`);
+                        if (select) {
+                            select.innerHTML = data.map(s => 
+                                `<option value="${s.ssn}">${s.firstName} ${s.lastName} (${s.ssn})</option>`
                             ).join('');
                         }
                     });
@@ -644,9 +664,14 @@
         }
 
         function submitAddFunds() {
+            const funds = parseInt(document.getElementById('addFunds_funds').value);
+            if (funds < 0) {
+                showMessage('addFunds', 'Funds cannot be negative', false);
+                return;
+            }
             const data = {
                 ssn: document.getElementById('addFunds_ssn').value,
-                funds: parseInt(document.getElementById('addFunds_funds').value)
+                funds: funds
             };
             fetch('/add_funds', {
                 method: 'POST',
@@ -788,18 +813,15 @@
             fetch(`/view/${viewName}`)
                 .then(r => r.json())
                 .then(data => {
-                    // Check if there's an error
                     if (data.error) {
                         document.getElementById('views_data').innerHTML = 
                             `<div class="message error">Error: ${data.error}</div>`;
                         return;
                     }
-                    // Check if data is an array and has items
                     if (!Array.isArray(data) || data.length === 0) {
                         document.getElementById('views_data').innerHTML = '<p>No data found</p>';
                         return;
                     }
-                    // Check if first item exists
                     if (!data[0]) {
                         document.getElementById('views_data').innerHTML = '<p>No data found</p>';
                         return;

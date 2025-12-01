@@ -14,13 +14,25 @@ def get_db():
         database='er_hospital_management'
     )
 
+# Convert empty strings to None for db to detect as null values
+def clean_data(data):
+    cleaned = {}
+    for key, value in data.items():
+        if isinstance(value, str) and value.strip() == '':
+            cleaned[key] = None
+        elif value == '':
+            cleaned[key] = None
+        else:
+            cleaned[key] = value
+    return cleaned
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/add_patient', methods=['POST'])
 def add_patient():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -37,7 +49,7 @@ def add_patient():
 
 @app.route('/record_symptom', methods=['POST'])
 def record_symptom():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -54,7 +66,7 @@ def record_symptom():
 
 @app.route('/book_appointment', methods=['POST'])
 def book_appointment():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -70,7 +82,7 @@ def book_appointment():
 
 @app.route('/place_order', methods=['POST'])
 def place_order():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -88,7 +100,7 @@ def place_order():
 
 @app.route('/add_staff_to_dept', methods=['POST'])
 def add_staff_to_dept():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -106,7 +118,7 @@ def add_staff_to_dept():
 
 @app.route('/add_funds', methods=['POST'])
 def add_funds():
-    data = request.json
+    data = clean_data(request.json)
     try:
         funds = int(data['funds'])
         if funds < 0:
@@ -123,7 +135,7 @@ def add_funds():
 
 @app.route('/assign_nurse_to_room', methods=['POST'])
 def assign_nurse_to_room():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -137,7 +149,7 @@ def assign_nurse_to_room():
 
 @app.route('/assign_room_to_patient', methods=['POST'])
 def assign_room_to_patient():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -153,7 +165,7 @@ def assign_room_to_patient():
 
 @app.route('/assign_doctor_to_appointment', methods=['POST'])
 def assign_doctor_to_appointment():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -169,7 +181,7 @@ def assign_doctor_to_appointment():
 
 @app.route('/manage_department', methods=['POST'])
 def manage_department():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -183,7 +195,7 @@ def manage_department():
 
 @app.route('/release_room', methods=['POST'])
 def release_room():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -197,7 +209,7 @@ def release_room():
 
 @app.route('/remove_patient', methods=['POST'])
 def remove_patient():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -211,7 +223,7 @@ def remove_patient():
 
 @app.route('/remove_staff_from_dept', methods=['POST'])
 def remove_staff_from_dept():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -225,7 +237,7 @@ def remove_staff_from_dept():
 
 @app.route('/complete_appointment', methods=['POST'])
 def complete_appointment():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -241,7 +253,7 @@ def complete_appointment():
 
 @app.route('/complete_orders', methods=['POST'])
 def complete_orders():
-    data = request.json
+    data = clean_data(request.json)
     try:
         conn = get_db()
         cursor = conn.cursor()

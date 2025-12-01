@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import mysql.connector
-from datetime import datetime
+from datetime import timedelta, date, datetime
+import json
 
 app = Flask(__name__)
 
@@ -257,12 +258,11 @@ def get_view(view_name):
     try:
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(f'SELECT * FROM {view_name}')
+        cursor.execute(f'select * from {view_name}')
         results = cursor.fetchall()
         cursor.close()
         conn.close()
         
-        from datetime import timedelta, date, datetime
         
         def convert_to_serializable(obj):
             if isinstance(obj, timedelta):
@@ -289,7 +289,7 @@ def get_patients():
     try:
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT ssn, firstName, lastName FROM patient JOIN person USING(ssn)')
+        cursor.execute('select ssn, firstName, lastName from patient join person using(ssn)')
         results = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -302,7 +302,7 @@ def get_doctors():
     try:
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT ssn, firstName, lastName FROM doctor JOIN person USING(ssn)')
+        cursor.execute('select ssn, firstName, lastName from doctor join person using(ssn)')
         results = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -315,7 +315,7 @@ def get_nurses():
     try:
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT ssn, firstName, lastName FROM nurse JOIN person USING(ssn)')
+        cursor.execute('select ssn, firstName, lastName from nurse join person using(ssn)')
         results = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -328,7 +328,7 @@ def get_departments():
     try:
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT deptId, longName FROM department')
+        cursor.execute('select deptId, longName from department')
         results = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -341,7 +341,7 @@ def get_rooms():
     try:
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT roomNumber, roomType FROM room')
+        cursor.execute('select roomNumber, roomType from room')
         results = cursor.fetchall()
         cursor.close()
         conn.close()

@@ -10,7 +10,7 @@ def get_db():
         host='127.0.0.1',
         port=3306,
         user='root',
-        password='ElectricitySLB15#',
+        password='',
         database='er_hospital_management'
     )
 

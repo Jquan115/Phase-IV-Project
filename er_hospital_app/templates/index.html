@@ -826,37 +826,36 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.error) {
-                        document.getElementById('views_data').innerHTML = 
-                            `<div class="message error">Error: ${data.error}</div>`;
+                        document.getElementById('views_data').innerHTML = `<div class="error">Error: ${data.error}</div>`;
                         return;
                     }
-                    if (!Array.isArray(data) || data.length === 0) {
-                        document.getElementById('views_data').innerHTML = '<p>No data found</p>';
+                    
+                    if (!data.columns || !data.rows || data.rows.length === 0) {
+                        document.getElementById('views_data').innerHTML = '<div class="error">No data found</div>';
                         return;
                     }
-                    if (!data[0]) {
-                        document.getElementById('views_data').innerHTML = '<p>No data found</p>';
-                        return;
-                    }
-                    const keys = Object.keys(data[0]);
+                    
+                    const keys = data.columns; 
+                    
                     let html = '<table><thead><tr>';
                     keys.forEach(key => {
                         html += `<th>${key}</th>`;
                     });
                     html += '</tr></thead><tbody>';
-                    data.forEach(row => {
+                    
+                    data.rows.forEach(row => {
                         html += '<tr>';
                         keys.forEach(key => {
                             html += `<td>${row[key] !== null ? row[key] : 'NULL'}</td>`;
                         });
                         html += '</tr>';
                     });
+                    
                     html += '</tbody></table>';
                     document.getElementById('views_data').innerHTML = html;
                 })
                 .catch(error => {
-                    document.getElementById('views_data').innerHTML = 
-                        `<div class="message error">Error loading view: ${error}</div>`;
+                    document.getElementById('views_data').innerHTML = `<div class="error">Error loading view: ${error}</div>`;
                 });
         }
 

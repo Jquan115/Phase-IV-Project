@@ -272,6 +272,9 @@ def get_view(view_name):
         cursor = conn.cursor(dictionary=True)
         cursor.execute(f'select * from {view_name}')
         results = cursor.fetchall()
+        
+        column_names = cursor.column_names
+        
         cursor.close()
         conn.close()
         
@@ -292,7 +295,11 @@ def get_view(view_name):
                 serializable_row[key] = convert_to_serializable(value)
             serializable_results.append(serializable_row)
         
-        return jsonify(serializable_results)
+        # Return both columns and rows
+        return jsonify({
+            'columns': column_names,
+            'rows': serializable_results
+        })
     except Exception as e:
         return jsonify({'error': str(e)})
 
